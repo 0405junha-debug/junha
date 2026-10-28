@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>리얼 3D 화이트 공학용 계산기 & 실시간 환율</title>
+  <meta name="description" content="수식 과정 표시, 커서 이동 및 중간 수정이 가능한 실제 공학용 계산기, 실시간 환율 및 계산 기록 위젯을 갖춘 프리미엄 화이트 계산기">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 배경 은은한 스튜디오 라이트 그라디언트 -->
+  <div class="bg-gradient"></div>
+
+  <div class="app-container">
+    <!-- 메인 계산기 래퍼 -->
+    <main class="calculator-viewport" id="calcViewport">
+      
+      <!-- 계산기 본체 (공학용 모드 시 와이드 확장) -->
+      <article class="calculator" id="calculator" role="region" aria-label="3D 리얼 화이트 공학용 계산기">
+        
+        <!-- 상단 헤더: 브랜드 & 모드 전환 3-웨이 탭 & 계산 기록 버튼 -->
+        <div class="calc-header">
+          <div class="calc-header-top">
+            <div class="calc-brand">
+              <span class="brand-dot"></span>
+              <span class="brand-title">WHITE PURE FX-990 SCIENTIFIC</span>
+            </div>
+            <!-- 계산 기록 위젯 토글 버튼 -->
+            <button id="btnHistoryToggle" class="history-toggle-btn" title="계산 기록 보기 (H)" aria-label="계산 기록 토글">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>기록</span>
+              <span class="history-badge" id="historyCountBadge">0</span>
+            </button>
+          </div>
+
+          <!-- 3-웨이 모드 전환 세그먼트 탭 -->
+          <div class="mode-tabs" role="tablist">
+            <button class="mode-tab active" id="tabStandard" role="tab" aria-selected="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                <line x1="8" y1="6" x2="16" y2="6"></line>
+                <line x1="16" y1="14" x2="16" y2="18"></line>
+                <path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"></path>
+              </svg>
+              <span>기본</span>
+            </button>
+            <button class="mode-tab" id="tabScientific" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 19l4-14 4 14 4-14 4 14"></path>
+              </svg>
+              <span>공학용</span>
+            </button>
+            <button class="mode-tab" id="tabCurrency" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="6" x2="12" y2="18"></line>
+                <path d="M16 10H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H8"></path>
+              </svg>
+              <span>실시간 환율</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 실시간 환율 모드 통화 선택 바 -->
+        <div class="currency-bar" id="currencyBar">
+          <div class="currency-select-group">
+            <label for="currencyFrom" class="curr-label">보낼 통화</label>
+            <select id="currencyFrom" class="currency-select" aria-label="보낼 통화 선택">
+              <option value="USD" selected>🇺🇸 USD (미국 달러)</option>
+              <option value="KRW">🇰🇷 KRW (한국 원)</option>
+              <option value="JPY">🇯🇵 JPY (일본 엔)</option>
+              <option value="EUR">🇪🇺 EUR (유럽 유로)</option>
+              <option value="CNY">🇨🇳 CNY (중국 위안)</option>
+              <option value="GBP">🇬🇧 GBP (영국 파운드)</option>
+              <option value="VND">🇻🇳 VND (베트남 동)</option>
+              <option value="AUD">🇦🇺 AUD (호주 달러)</option>
+            </select>
+          </div>
+
+          <button id="btnSwapCurrency" class="currency-swap-btn" title="통화 맞바꾸기" aria-label="통화 맞바꾸기">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M7 16V4M7 4L3 8M7 4L11 8M17 8V20M17 20L21 16M17 20L13 16"></path>
+            </svg>
+          </button>
+
+          <div class="currency-select-group">
+            <label for="currencyTo" class="curr-label">받을 통화</label>
+            <select id="currencyTo" class="currency-select" aria-label="받을 통화 선택">
+              <option value="USD">🇺🇸 USD (미국 달러)</option>
+              <option value="KRW" selected>🇰🇷 KRW (한국 원)</option>
+              <option value="JPY">🇯🇵 JPY (일본 엔)</option>
+              <option value="EUR">🇪🇺 EUR (유럽 유로)</option>
+              <option value="CNY">🇨🇳 CNY (중국 위안)</option>
+              <option value="GBP">🇬🇧 GBP (영국 파운드)</option>
+              <option value="VND">🇻🇳 VND (베트남 동)</option>
+              <option value="AUD">🇦🇺 AUD (호주 달러)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 실시간 환율 상태 라벨 -->
+        <div class="rate-status-bar" id="rateStatusBar">
+          <div class="rate-info">
+            <span class="live-pulse" title="실시간 반영 중"></span>
+            <span class="rate-text" id="rateSummaryText">환율 정보를 불러오는 중...</span>
+          </div>
+          <button id="btnRefreshRate" class="refresh-rate-btn" title="실시간 환율 새로고침">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M23 4v6h-6M1 20v-6h6"></path>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            <span>새로고침</span>
+          </button>
+        </div>
+
+        <!-- 음각 베젤 디스플레이 패널 (인라인 수식 편집기 & 결과창) -->
+        <div class="display-bezel">
+          <div class="display-screen" id="displayScreen">
+            
+            <!-- 상단 바: 각도 모드(DEG/RAD) 인디케이터 및 수식 에디터 -->
+            <div class="display-top-bar">
+              <button id="btnAngleMode" class="angle-mode-btn" title="각도 단위 변경 (DEG ↔ RAD)" aria-label="각도 단위 전환">
+                <span class="angle-active" id="angleBadge">DEG</span>
+              </button>
+              
+              <!-- 커서 이동 및 클릭 수정이 가능한 수식 에디터 영역 -->
+              <div class="expression-editor-wrapper">
+                <div class="expression-editor" id="expressionEditor" tabindex="0" role="textbox" aria-label="수식 입력창" title="수식의 원하는 위치를 클릭하여 커서를 이동할 수 있습니다">
+                  <span class="expr-content" id="exprContent"></span>
+                  <span class="calc-cursor" id="calcCursor"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 하단 메인 라인 (초고시인성 잉크 블랙 대형 결과 폰트) -->
+            <div class="display-main-line">
+              <span class="active-operator" id="activeOperatorBadge" aria-hidden="true"></span>
+              <span class="display-digits" id="calcDisplay" aria-live="assertive">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 키패드 통합 컨테이너 (공학용 키패드 + 기본 키패드) -->
+        <div class="keypad-layout" id="keypadLayout">
+          
+          <!-- 좌측: 공학용 전용 3D 키패드 (공학용 모드 시 활성화) -->
+          <div class="sci-keypad-panel" id="sciKeypadPanel" aria-label="공학용 함수 키패드">
+            <!-- 1행: 2nd, ◀ (좌로 이동), ▶ (우로 이동), ( ) -->
+            <button class="key key-sci" data-action="sci-func" data-func="2nd" id="key-2nd" title="2차 함수 전환">
+              <span class="key-surface">2<sup>nd</sup></span>
+            </button>
+            <button class="key key-sci key-nav" data-action="cursor-left" id="key-nav-left" title="커서 왼쪽으로 이동 (←)">
+              <span class="key-surface">◀</span>
+            </button>
+            <button class="key key-sci key-nav" data-action="cursor-right" id="key-nav-right" title="커서 오른쪽으로 이동 (→)">
+              <span class="key-surface">▶</span>
+            </button>
+            <button class="key key-sci key-paren" data-action="insert" data-val="(" id="key-paren-open" title="여는 괄호">
+              <span class="key-surface">(</span>
+            </button>
+
+            <!-- 2행: sin, cos, tan, ) -->
+            <button class="key key-sci" data-action="sci-func" data-func="sin" id="key-sin" title="사인">
+              <span class="key-surface">sin</span>
+            </button>
+            <button class="key key-sci" data-action="sci-func" data-func="cos" id="key-cos" title="코사인">
+              <span class="key-surface">cos</span>
+            </button>
+            <button class="key key-sci" data-action="sci-func" data-func="tan" id="key-tan" title="탄젠트">
+              <span class="key-surface">tan</span>
+            </button>
+            <button class="key key-sci key-paren" data-action="insert" data-val=")" id="key-paren-close" title="닫는 괄호">
+              <span class="key-surface">)</span>
+            </button>
+
+            <!-- 3행: x², xʸ(^), √x, ³√x -->
+            <button class="key key-sci" data-action="sci-func" data-func="sqr" id="key-sqr" title="제곱 (x²)">
+              <span class="key-surface">x<sup>2</sup></span>
+            </button>
+            <button class="key key-sci" data-action="sci-func" data-func="pow" id="key-pow" title="거듭제곱 (x^y)">
+              <span class="key-surface">x<sup>y</sup></span>
+            </button>
+            <button class="key key-sci" data-action="sci-func" data-func="sqrt" id="key-sqrt" title="제곱근 (√)">
+              <span class="key-surface">√</span>
+            </button>
+            <button class="key key-sci" data-action="sci-func" data-func="cbrt" id="key-cbrt" title="세제곱근 (³√)">
+              <span class="key-surface"><sup>3</sup>√</span>
+            </button>
+
+            <!-- 4행: ln, log, 1/x, |x| -->
+            <button class="key key-sci" data-action="sci-func" data-func="ln" id="key-ln" title="자연로그 (밑 e)">
+              <span class="key-surface">ln</span>
+            </button>
+            <button class="key key-sci" data-action="sci-func" data-func="log" id="key-log" title="상용로그 (밑 10)">
+              <span class="key-surface">log</span>
+            </button>
+            <button class="key key-sci" data-action="sci-func" data-func="reciprocal" id="key-reciprocal" title="역수 (1/x)">
+              <span class="key-surface">1/x</span>
+            </button>
+            <button class="key key-sci" data-action="sci-func" data-func="abs" id="key-abs" title="절대값 (|x|)">
+              <span class="key-surface">|x|</span>
+            </button>
+
+            <!-- 5행: n!, π, e, DEG/RAD 토글 -->
+            <button class="key key-sci" data-action="sci-func" data-func="factorial" id="key-factorial" title="팩토리얼 (n!)">
+              <span class="key-surface">n!</span>
+            </button>
+            <button class="key key-sci" data-action="insert" data-val="π" id="key-pi" title="파이 (3.14159...)">
+              <span class="key-surface">π</span>
+            </button>
+            <button class="key key-sci" data-action="insert" data-val="e" id="key-euler" title="자연상수 e (2.71828...)">
+              <span class="key-surface">e</span>
+            </button>
+            <button class="key key-sci key-rad-btn" data-action="toggle-angle" id="key-rad-switch" title="각도 단위 전환 (DEG ↔ RAD)">
+              <span class="key-surface">RAD</span>
+            </button>
+          </div>
+
+          <!-- 우측: 기본 키패드 영역 (3D 쫀득한 화이트 물리 키캡 그리드) -->
+          <div class="keypad-tray">
+            <!-- 1행: AC, DEL, %, ÷ -->
+            <button class="key key-func key-ac" data-action="clear" data-key="Escape" id="key-ac" aria-label="전체 삭제 (AC)">
+              <span class="key-surface">AC</span>
+            </button>
+            <button class="key key-func key-del" data-action="backspace" data-key="Backspace" id="key-del" aria-label="한 글자 지우기 (DEL)">
+              <span class="key-surface">DEL</span>
+            </button>
+            <button class="key key-func" data-action="operator" data-op="%" data-key="%" id="key-percent" aria-label="백분율 (%)">
+              <span class="key-surface">%</span>
+            </button>
+            <button class="key key-op" data-action="operator" data-op="÷" data-key="/" id="key-divide" aria-label="나누기 (÷)">
+              <span class="key-surface">÷</span>
+            </button>
+
+            <!-- 2행: 7, 8, 9, × -->
+            <button class="key key-num" data-action="number" data-num="7" data-key="7" id="key-7" aria-label="7">
+              <span class="key-surface">7</span>
+            </button>
+            <button class="key key-num" data-action="number" data-num="8" data-key="8" id="key-8" aria-label="8">
+              <span class="key-surface">8</span>
+            </button>
+            <button class="key key-num" data-action="number" data-num="9" data-key="9" id="key-9" aria-label="9">
+              <span class="key-surface">9</span>
+            </button>
+            <button class="key key-op" data-action="operator" data-op="×" data-key="*" id="key-multiply" aria-label="곱하기 (×)">
+              <span class="key-surface">×</span>
+            </button>
+
+            <!-- 3행: 4, 5, 6, - -->
+            <button class="key key-num" data-action="number" data-num="4" data-key="4" id="key-4" aria-label="4">
+              <span class="key-surface">4</span>
+            </button>
+            <button class="key key-num" data-action="number" data-num="5" data-key="5" id="key-5" aria-label="5">
+              <span class="key-surface">5</span>
+            </button>
+            <button class="key key-num" data-action="number" data-num="6" data-key="6" id="key-6" aria-label="6">
+              <span class="key-surface">6</span>
+            </button>
+            <button class="key key-op" data-action="operator" data-op="−" data-key="-" id="key-subtract" aria-label="빼기 (-)">
+              <span class="key-surface">−</span>
+            </button>
+
+            <!-- 4행: 1, 2, 3, + -->
+            <button class="key key-num" data-action="number" data-num="1" data-key="1" id="key-1" aria-label="1">
+              <span class="key-surface">1</span>
+            </button>
+            <button class="key key-num" data-action="number" data-num="2" data-key="2" id="key-2" aria-label="2">
+              <span class="key-surface">2</span>
+            </button>
+            <button class="key key-num" data-action="number" data-num="3" data-key="3" id="key-3" aria-label="3">
+              <span class="key-surface">3</span>
+            </button>
+            <button class="key key-op" data-action="operator" data-op="+" data-key="+" id="key-add" aria-label="더하기 (+)">
+              <span class="key-surface">+</span>
+            </button>
+
+            <!-- 5행: +/-, 0, ., = -->
+            <button class="key key-num key-sign" data-action="toggle-sign" id="key-sign" aria-label="부호 변경 (±)">
+              <span class="key-surface">±</span>
+            </button>
+            <button class="key key-num" data-action="number" data-num="0" data-key="0" id="key-0" aria-label="0">
+              <span class="key-surface">0</span>
+            </button>
+            <button class="key key-num" data-action="decimal" data-key="." id="key-decimal" aria-label="소수점 (.)">
+              <span class="key-surface">.</span>
+            </button>
+            <button class="key key-equals" data-action="calculate" data-key="Enter" id="key-equals" aria-label="계산 실행 (=)">
+              <span class="key-surface">=</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- 하단 섬세한 디자인 그립 바 -->
+        <div class="calc-footer-bar">
+          <span class="footer-dot"></span>
+        </div>
+      </article>
+
+      <!-- 계산 기록 위젯 사이드 패널/드로어 -->
+      <aside class="history-drawer" id="historyDrawer" aria-label="계산 및 환율 기록">
+        <div class="history-header">
+          <div class="history-title">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>계산 기록</span>
+          </div>
+          <button id="btnClearHistory" class="history-clear-btn" title="기록 전체 비우기">비우기</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty">계산 기록이 없습니다.</div>
+        </div>
+      </aside>
+
+    </main>
+
+    <!-- 하단 단축키 가이드 -->
+    <footer class="bottom-tips">
+      <div class="tip-item"><kbd>0-9</kbd> 숫자</div>
+      <div class="tip-item"><kbd>+</kbd> <kbd>−</kbd> <kbd>×</kbd> <kbd>÷</kbd> 연산자</div>
+      <div class="tip-item"><kbd>(</kbd> <kbd>)</kbd> 괄호</div>
+      <div class="tip-item"><kbd>←</kbd> <kbd>→</kbd> 커서 이동</div>
+      <div class="tip-item"><kbd>Enter</kbd> 계산</div>
+      <div class="tip-item"><kbd>Backspace</kbd> 수정</div>
+      <div class="tip-item"><kbd>Tab</kbd> 모드 전환</div>
+      <div class="tip-item"><kbd>H</kbd> 기록</div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

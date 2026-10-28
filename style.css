@@ -1,0 +1,1044 @@
+/* ==========================================================================
+   리얼 3D 프리미엄 화이트 계산기 & 공학용 & 실시간 환율 스타일시트
+   테마: Bright Studio White, Skeuomorphic 3D 깊이감, 초고시인성 잉크 블랙
+   ========================================================================== */
+
+:root {
+  /* 배경 & 환경 라이트 톤 */
+  --bg-main: #f1f5f9;
+  --bg-gradient: radial-gradient(circle at 50% 30%, #ffffff 0%, #e2e8f0 100%);
+
+  /* 계산기 본체 (Chassis - Premium Pure White) */
+  --body-bg-top: #ffffff;
+  --body-bg-bot: #f8fafc;
+  --body-border: #e2e8f0;
+  --body-shadow: 0 25px 50px -12px rgba(30, 41, 59, 0.16),
+                 0 12px 24px -6px rgba(30, 41, 59, 0.1),
+                 0 2px 6px rgba(30, 41, 59, 0.05);
+
+  /* 디스플레이 (Bezel & Crystal White Screen) */
+  --display-bezel-bg: #e2e8f0;
+  --screen-bg: #f8fafc;
+  --screen-text-main: #0f172a;
+  --screen-text-sub: #475569;
+  --screen-accent: #2563eb;
+  --screen-border: #cbd5e1;
+
+  /* 키캡 공통 3D 두께 & 모션 */
+  --key-radius: 14px;
+  --key-depth: 5px;
+  --key-press-depth: 4px;
+
+  /* 키캡 테마: 숫자 키 (Pure White) */
+  --key-num-bg: #ffffff;
+  --key-num-shadow: #cbd5e1;
+  --key-num-text: #0f172a;
+
+  /* 키캡 테마: 연산자 키 (Soft Ice Blue) */
+  --key-op-bg: #f0f9ff;
+  --key-op-shadow: #bae6fd;
+  --key-op-text: #0284c7;
+
+  /* 키캡 테마: 기능 키 (Soft Rose) */
+  --key-func-bg: #fff1f2;
+  --key-func-shadow: #fecdd3;
+  --key-func-text: #e11d48;
+
+  /* 키캡 테마: 공학용 특수 키 (Soft Indigo/Lavender) */
+  --key-sci-bg: #f8faff;
+  --key-sci-shadow: #c7d2fe;
+  --key-sci-text: #4338ca;
+
+  /* 키캡 테마: 등호 키 (Vibrant Royal Blue Accent) */
+  --key-eq-bg: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --key-eq-shadow: #1e40af;
+  --key-eq-text: #ffffff;
+
+  /* 폰트 */
+  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sub: 'Share Tech Mono', monospace;
+  --font-ui: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ==========================================================================
+   기본 리셋 & 레이아웃
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg-main);
+  font-family: var(--font-main);
+  color: #1e293b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.bg-gradient {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-gradient);
+  z-index: 0;
+}
+
+.app-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 20px;
+}
+
+/* ==========================================================================
+   메인 계산기 래퍼 & 뷰포트
+   ========================================================================== */
+.calculator-viewport {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  margin: auto 0;
+}
+
+/* ==========================================================================
+   계산기 본체 (프리미엄 화이트 세라믹 바디 & 입체 섀도우)
+   ========================================================================== */
+.calculator {
+  position: relative;
+  width: 390px;
+  background: linear-gradient(180deg, var(--body-bg-top) 0%, var(--body-bg-bot) 100%);
+  border-radius: 36px;
+  padding: 24px 24px 20px 24px;
+  border: 1px solid var(--body-border);
+  box-shadow: var(--body-shadow);
+  transform: translateZ(0);
+  flex-shrink: 0;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 공학용 모드 시 와이드 확장 바디 */
+.calculator.scientific-mode {
+  width: 710px;
+  max-width: 96vw;
+}
+
+/* 상단 은은한 화이트 하이라이트 베벨 */
+.calculator::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 36px;
+  box-shadow: inset 0 2px 2px #ffffff, inset 0 -2px 4px rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   상단 헤더: 브랜드 / 기록 버튼 / 모드 전환 탭
+   ========================================================================== */
+.calc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.calc-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.calc-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2563eb;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
+}
+
+.brand-title {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+/* 계산 기록 토글 버튼 */
+.history-toggle-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.history-toggle-btn:hover {
+  background: #f8fafc;
+  color: #2563eb;
+  border-color: #93c5fd;
+}
+
+.history-toggle-btn.active {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.history-badge {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.history-toggle-btn.active .history-badge {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+/* 3-웨이 모드 전환 탭 (Pill-style Tabs) */
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.mode-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mode-tab:hover {
+  color: #1e293b;
+}
+
+.mode-tab.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================================
+   실시간 환율 변환기 툴바 (Currency Converter Bar)
+   ========================================================================== */
+.currency-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.currency-bar.active {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.currency-select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.curr-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+.currency-select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.currency-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.currency-swap-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-top: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.currency-swap-btn:hover {
+  background: #f1f5f9;
+  color: #2563eb;
+  transform: rotate(180deg);
+}
+
+/* 실시간 환율 상태 정보 바 */
+.rate-status-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  margin-bottom: 12px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.rate-status-bar.active {
+  display: flex;
+}
+
+.rate-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.rate-text {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.refresh-rate-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.refresh-rate-btn:hover {
+  background: #eff6ff;
+}
+
+.refresh-rate-btn.spinning svg {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   디스플레이 (음각 베젤 & 인라인 수식 에디터 스크린)
+   ========================================================================== */
+.display-bezel {
+  background: var(--display-bezel-bg);
+  border-radius: 20px;
+  padding: 6px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12),
+              0 1px 1px #ffffff;
+  margin-bottom: 18px;
+}
+
+.display-screen {
+  position: relative;
+  background: var(--screen-bg);
+  border-radius: 16px;
+  min-height: 112px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid var(--screen-border);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.display-top-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* 각도 모드 버튼 (DEG / RAD) */
+.angle-mode-btn {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: none;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.calculator.scientific-mode .angle-mode-btn {
+  display: inline-block;
+}
+
+.angle-mode-btn:hover {
+  background: #dbeafe;
+}
+
+/* 인라인 수식 에디터 래퍼 & 뷰 */
+.expression-editor-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: right;
+  padding-bottom: 2px;
+}
+
+.expression-editor-wrapper::-webkit-scrollbar {
+  height: 3px;
+}
+
+.expression-editor-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.expression-editor {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--screen-text-sub);
+  min-height: 1.6rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  outline: none;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* 각 수식 글자/토큰 (클릭 시 해당 위치로 커서 이동) */
+.expr-char {
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+
+.expr-char:hover {
+  background: #e2e8f0;
+}
+
+/* 카시오식 실시간 깜빡이는 커서 */
+.calc-cursor {
+  display: inline-block;
+  width: 2.5px;
+  height: 1.15em;
+  background-color: #2563eb;
+  vertical-align: text-bottom;
+  margin: 0 1px;
+  border-radius: 1px;
+  animation: cursorBlink 0.9s step-start infinite;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
+}
+
+@keyframes cursorBlink {
+  50% { opacity: 0; }
+}
+
+/* 하단 메인 결과 라인 (초고시인성 잉크 블랙 대형 폰트) */
+.display-main-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.active-operator {
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: var(--screen-accent);
+  min-width: 24px;
+}
+
+.display-digits {
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 2.6rem;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--screen-text-main);
+  text-align: right;
+  flex: 1;
+  word-break: break-all;
+  transition: font-size 0.12s ease;
+}
+
+.display-digits.digits-medium {
+  font-size: 2.1rem;
+}
+
+.display-digits.digits-long {
+  font-size: 1.65rem;
+}
+
+.display-digits.digits-overflow {
+  font-size: 1.3rem;
+}
+
+/* ==========================================================================
+   키패드 통합 레이아웃 (공학용 패널 + 기본 패널)
+   ========================================================================== */
+.keypad-layout {
+  display: flex;
+  gap: 12px;
+}
+
+/* 좌측 공학용 키패드 패널 */
+.sci-keypad-panel {
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  flex: 1;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.calculator.scientific-mode .sci-keypad-panel {
+  display: grid;
+}
+
+/* 우측 기본 키패드 패널 */
+.keypad-tray {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  flex: 1;
+}
+
+.calculator.scientific-mode .keypad-tray {
+  gap: 10px;
+}
+
+/* ==========================================================================
+   3D 키패드 그리드 & 키캡 누름 모션 (Tactile Push Motion)
+   ========================================================================== */
+.key {
+  position: relative;
+  outline: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: var(--key-radius);
+  height: 60px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.key-surface {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--key-radius);
+  font-family: var(--font-main);
+  font-size: 1.35rem;
+  font-weight: 700;
+  transition: transform 0.05s ease-out, box-shadow 0.05s ease-out, background-color 0.1s ease;
+  will-change: transform, box-shadow;
+}
+
+/* ----------------------------------------------------
+   1. 공학용 함수 키 (Scientific Keys)
+   ---------------------------------------------------- */
+.key-sci .key-surface {
+  background: var(--key-sci-bg);
+  color: var(--key-sci-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 var(--key-depth) 0 var(--key-sci-shadow),
+              0 6px 10px rgba(67, 56, 202, 0.06),
+              inset 0 1px 1px #ffffff;
+}
+
+.key-sci:hover .key-surface {
+  background: #eef2ff;
+}
+
+.key-sci:active .key-surface,
+.key-sci.pressed .key-surface {
+  transform: translateY(var(--key-press-depth));
+  box-shadow: 0 1px 0 var(--key-sci-shadow),
+              0 2px 4px rgba(67, 56, 202, 0.06),
+              inset 0 2px 3px rgba(67, 56, 202, 0.08);
+}
+
+.key-sci.active-2nd .key-surface {
+  background: #4338ca;
+  color: #ffffff;
+  box-shadow: 0 var(--key-depth) 0 #312e81,
+              0 0 10px rgba(67, 56, 202, 0.3);
+}
+
+/* 커서 네비게이션 키 (◀, ▶) */
+.key-nav .key-surface {
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 1.15rem;
+  border-color: #bfdbfe;
+  box-shadow: 0 var(--key-depth) 0 #93c5fd,
+              0 6px 10px rgba(37, 99, 235, 0.08),
+              inset 0 1px 1px #ffffff;
+}
+
+.key-nav:hover .key-surface {
+  background: #dbeafe;
+}
+
+/* 괄호 키 ( ( , ) ) */
+.key-paren .key-surface {
+  background: #f1f5f9;
+  color: #1e293b;
+  font-size: 1.35rem;
+  border-color: #cbd5e1;
+  box-shadow: 0 var(--key-depth) 0 #94a3b8,
+              0 6px 10px rgba(0, 0, 0, 0.05),
+              inset 0 1px 1px #ffffff;
+}
+
+/* ----------------------------------------------------
+   2. 숫자 키 (Numbers 0-9 & .)
+   ---------------------------------------------------- */
+.key-num .key-surface {
+  background: var(--key-num-bg);
+  color: var(--key-num-text);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 var(--key-depth) 0 var(--key-num-shadow),
+              0 8px 12px rgba(15, 23, 42, 0.08),
+              inset 0 1px 1px #ffffff;
+}
+
+.key-num:hover .key-surface {
+  background: #f8fafc;
+}
+
+.key-num:active .key-surface,
+.key-num.pressed .key-surface {
+  transform: translateY(var(--key-press-depth));
+  box-shadow: 0 1px 0 var(--key-num-shadow),
+              0 2px 4px rgba(15, 23, 42, 0.06),
+              inset 0 2px 3px rgba(15, 23, 42, 0.05);
+}
+
+/* ----------------------------------------------------
+   3. 연산자 키 (÷, ×, -, +) - 소프트 블루
+   ---------------------------------------------------- */
+.key-op .key-surface {
+  background: var(--key-op-bg);
+  color: var(--key-op-text);
+  font-size: 1.55rem;
+  border: 1px solid #e0f2fe;
+  box-shadow: 0 var(--key-depth) 0 var(--key-op-shadow),
+              0 8px 12px rgba(2, 132, 199, 0.1),
+              inset 0 1px 1px #ffffff;
+}
+
+.key-op:hover .key-surface {
+  background: #e0f2fe;
+}
+
+.key-op:active .key-surface,
+.key-op.pressed .key-surface {
+  transform: translateY(var(--key-press-depth));
+  box-shadow: 0 1px 0 var(--key-op-shadow),
+              0 2px 4px rgba(2, 132, 199, 0.08),
+              inset 0 2px 3px rgba(2, 132, 199, 0.08);
+}
+
+/* ----------------------------------------------------
+   4. 기능 키 (AC, DEL, %) - 소프트 로즈
+   ---------------------------------------------------- */
+.key-func .key-surface {
+  background: var(--key-func-bg);
+  color: var(--key-func-text);
+  font-size: 1.15rem;
+  font-weight: 800;
+  border: 1px solid #ffe4e6;
+  box-shadow: 0 var(--key-depth) 0 var(--key-func-shadow),
+              0 8px 12px rgba(225, 29, 72, 0.08),
+              inset 0 1px 1px #ffffff;
+}
+
+.key-func:hover .key-surface {
+  background: #ffe4e6;
+}
+
+.key-func:active .key-surface,
+.key-func.pressed .key-surface {
+  transform: translateY(var(--key-press-depth));
+  box-shadow: 0 1px 0 var(--key-func-shadow),
+              0 2px 4px rgba(225, 29, 72, 0.06),
+              inset 0 2px 3px rgba(225, 29, 72, 0.08);
+}
+
+/* ----------------------------------------------------
+   5. 등호 키 (=) - 모던 로열 블루
+   ---------------------------------------------------- */
+.key-equals .key-surface {
+  background: var(--key-eq-bg);
+  color: var(--key-eq-text);
+  font-size: 1.8rem;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 var(--key-depth) 0 var(--key-eq-shadow),
+              0 8px 16px rgba(37, 99, 235, 0.28),
+              inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.key-equals:hover .key-surface {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+.key-equals:active .key-surface,
+.key-equals.pressed .key-surface {
+  transform: translateY(var(--key-press-depth));
+  box-shadow: 0 1px 0 var(--key-eq-shadow),
+              0 2px 4px rgba(37, 99, 235, 0.2),
+              inset 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   계산 기록 위젯 사이드 드로어
+   ========================================================================== */
+.history-drawer {
+  position: absolute;
+  left: calc(100% + 18px);
+  top: 0;
+  width: 280px;
+  height: 100%;
+  max-height: 520px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 28px;
+  padding: 20px;
+  box-shadow: 0 20px 40px -10px rgba(30, 41, 59, 0.12);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-15px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.history-drawer.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 12px;
+}
+
+.history-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.history-title svg {
+  color: #2563eb;
+}
+
+.history-clear-btn {
+  background: none;
+  border: 1px solid transparent;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #e11d48;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.history-clear-btn:hover {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.history-empty {
+  text-align: center;
+  color: #94a3b8;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-top: 50px;
+}
+
+.history-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: right;
+}
+
+.history-item:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.history-item-formula {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.history-item-result {
+  font-family: var(--font-main);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   하단 데코레이션 바 & 안내 팁
+   ========================================================================== */
+.calc-footer-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.footer-dot {
+  width: 36px;
+  height: 4px;
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.bottom-tips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 16px;
+  margin-top: 20px;
+  padding: 8px 16px;
+}
+
+.tip-item {
+  font-size: 0.78rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+kbd {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 2px 6px;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* ==========================================================================
+   반응형 모바일 미디어 쿼리
+   ========================================================================== */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 16px 12px;
+  }
+
+  .calculator-viewport {
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .calculator {
+    width: min(100%, 360px);
+    padding: 18px 14px 14px 14px;
+    border-radius: 28px;
+  }
+
+  .calculator.scientific-mode {
+    width: 100%;
+  }
+
+  .keypad-layout {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .key {
+    height: 52px;
+  }
+
+  .key-surface {
+    font-size: 1.15rem;
+  }
+
+  .key-sci .key-surface {
+    font-size: 0.92rem;
+  }
+
+  .display-digits {
+    font-size: 2.2rem;
+  }
+
+  .history-drawer {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 55vh;
+    border-radius: 24px 24px 0 0;
+    transform: translateY(100%);
+  }
+
+  .history-drawer.open {
+    transform: translateY(0);
+  }
+
+  .bottom-tips {
+    display: none;
+  }
+}
